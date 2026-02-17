@@ -35,11 +35,29 @@ Each line in the '.mnt' file, includes the following values in order:
 - V: Part value 
 - P: Part package
 
-![alt text](https://github.com/ubopod/QM1100/blob/main/images/export_mnt.png?raw=true)
+<img src="https://github.com/ubopod/QM1100/blob/main/images/export_mnt.png" alt="Export MNT file" width="500">
 
 The export operation will give you two files, one for top side components and another for bottom side components. Since our design is one-sides and the machine only support single-sided placement, we will ignore the bottom `.mnt` file.
 
 #### KiCAD format
+
+Before exporting the parts coordinate file in KiCAD, you have to first place the Drill/Place origin in the lower left corner of the PCB. On the PnP machine, the origin will be on the top left corner of PCB when mounted on the machine. The images below show how/where to place the Drill/Place origin: 
+
+<table>
+  <tr>
+    <td><img src="https://github.com/ubopod/QM1100/blob/main/images/kicad-select-place-origin.png" alt="Select Origin" width="500"></td>
+    <td><img src="https://github.com/ubopod/QM1100/blob/main/images/kicad-place-origin.png" alt="Select Origin" width="500"></td>
+   </tr> 
+</table>
+
+Next, you have to change direction of the X and Y axis to match the following image via Settings:
+
+<table>
+  <tr>
+    <td><img src="https://github.com/ubopod/QM1100/blob/main/images/kicad-preferences.png" alt="Select Origin" width="500"></td>
+    <td><img src="https://github.com/ubopod/QM1100/blob/main/images/kicad-setup-axis.png" alt="Select Origin" width="500"></td>
+   </tr> 
+</table>
 
 In KiCAD, go to `File > Fabrication Outputs > Component Placement (.pos file)` and export as CSV. The file should have this format:
 
@@ -49,6 +67,14 @@ Ref,Val,Package,PosX,PosY,Rot,Side
 "C2","0.1uF","C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",116.990400,-61.904400,90.000000,top
 ...
 ```
+Image below shows how to export Component Placement: 
+
+<table>
+  <tr>
+    <td><img src="https://github.com/ubopod/QM1100/blob/main/images/component-placement.png" alt="Select Origin" width="500"></td>
+    <td><img src="https://github.com/ubopod/QM1100/blob/main/images/kicad-generate.png" alt="Select Origin" width="500"></td>
+   </tr> 
+</table>
 
 Make sure the units are in mm (millimeters) and the output is comma-separated with a header row. The `Side` column is ignored by the script.
 
