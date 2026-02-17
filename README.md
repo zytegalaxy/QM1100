@@ -7,9 +7,13 @@ This repo includes scripts and instructions to program QM1100 Pick and Place Mac
 
 In order to prepare the Pick and Plance (PnP) machine, several steps must be taken. We will walk you through these steps below:
 
-### 1. Export mounting coordinate file from Eagle:
+### 1. Export mounting coordinate file from Eagle or KiCAD:
 
-The first step is to export the mounting file from Eagle in the following format:
+The script supports two input formats: **EagleCAD** `.mnt` files and **KiCAD** position `.csv` files.
+
+#### EagleCAD format
+
+Export the mounting file from Eagle in the following format:
 
 ```
 C1 45.99 105.42 180 10uF 0805-NO
@@ -34,6 +38,21 @@ Each line in the '.mnt' file, includes the following values in order:
 ![alt text](https://github.com/ubopod/QM1100/blob/main/images/export_mnt.png?raw=true)
 
 The export operation will give you two files, one for top side components and another for bottom side components. Since our design is one-sides and the machine only support single-sided placement, we will ignore the bottom `.mnt` file.
+
+#### KiCAD format
+
+In KiCAD, go to `File > Fabrication Outputs > Component Placement (.pos file)` and export as CSV. The file should have this format:
+
+```
+Ref,Val,Package,PosX,PosY,Rot,Side
+"C1","10uF","C_0805_2012Metric_Pad1.18x1.45mm_HandSolder",108.532200,-61.053500,180.000000,top
+"C2","0.1uF","C_0603_1608Metric_Pad1.08x0.95mm_HandSolder",116.990400,-61.904400,90.000000,top
+...
+```
+
+Make sure the units are in mm (millimeters) and the output is comma-separated with a header row. The `Side` column is ignored by the script.
+
+**Note on package matching:** KiCAD package names (e.g. `C_0805_2012Metric_Pad1.18x1.45mm_HandSolder`) are typically more verbose than the short names used in feeder files (e.g. `0805-NO`). The script will automatically fall back to value-only matching when the package name doesn't match exactly, and will print a warning when this happens.
 
 ### 2. Setup the feeder file
 
@@ -78,27 +97,48 @@ The best way derive part angle for each feer is to imagin picking that component
 
 ### 4. run script
 
-In order to generate the part list to prgram the machine with
+In order to generate the part list to program the machine with:
 
 ```
-python3 qm1100_v2.py <feeders.csv> <smd_mounting_coord.mnt> <output.csv> pcb_orientation_degrees
+python3 QM1100_v2.py -f <feeders.fds> -p <parts_file> -o <output.pts> --orientation <angle> [--format eagle|kicad]
 ```
 
-The formula takes comma seperated feeder list as the first argument, mounting coordinates list exported from eagle, and outputs parts list that includes all parts, placement coordinates in machine unit, correct amount of rotation for each part, etc. This list will then uploaded to the machine along with feeder list to configure it.
+**CLI arguments:**
 
-The PCB orientation angle provided to the `qm1100_v2.py` script (`pcb_orientation_degrees`) is the amount of rotation needed clockwise to rotate PCB from eagle orientation to orientation on the pick and place bed. For example, the axis of the PCB in the EAGLE board layout must rotate 90 degrees clockwise so that the PCB has the postion shown in the image below on the PnP machine bed.
+| Flag | Description |
+| --- | --- |
+| `-f` / `--feeders` | Feeder definition file (`.fds`) — required |
+| `-p` / `--parts` | Parts/coordinate file (`.mnt` or `.csv`) — required |
+| `-o` / `--output` | Output file (`.pts`) — required |
+| `--orientation` | PCB orientation angle: `0`, `90`, `-90`, or `180` — required |
+| `--format` | Input format: `eagle` (default) or `kicad` |
+
+The script takes the feeder list and mounting coordinates, and outputs a parts list that includes all parts, placement coordinates in machine units, correct amount of rotation for each part, etc. This list will then be uploaded to the machine along with the feeder list to configure it.
+
+The PCB orientation angle is the amount of rotation needed clockwise to rotate PCB from the CAD orientation to the orientation on the pick and place bed. For example, the axis of the PCB in the EAGLE board layout must rotate 90 degrees clockwise so that the PCB has the position shown in the image below on the PnP machine bed.
 
 | Orientation on the machine| Orientation in Eagle |
 | ------------- | ------------- |
 | ![alt text](https://github.com/ubopod/QM1100/blob/main/images/pnp_pcb_orientation.png?raw=true)  | ![alt text](https://github.com/ubopod/QM1100/blob/main/images/eagle_pcb_orientation.png?raw=true) |
 
-
-In this example, we are generating the pars list with the following command. Please note that according to the PCB setup on the machine, we must enter rotation angle of 90 degrees clockwise to match the current PCB orientation. 
+**Example with EagleCAD format:**
 
 ```
-> python3 QM1100_v2.py Ubo_v1.4_rear_feeder.fds Ubo_v1.4_variant_2.mnt Ubo_v1.4_parts.pts 90
+> python3 QM1100_v2.py -f Ubo_v1.4_rear_feeder.fds -p Ubo_v1.4_variant_2.mnt -o Ubo_v1.4_parts.pts --orientation 90
 
+Orientation: 90
 Wrote output file "Ubo_v1.4_parts.pts"
+```
+
+**Example with KiCAD format:**
+
+```
+> python3 QM1100_v2.py -f Ubo_v1.4_rear_feeder.fds -p Uno_v1.7_led_topview-top-pos.csv -o output.pts --orientation 90 --format kicad
+
+Orientation: 90
+WARNING: Part C1 (10uF, C_0805_2012Metric_Pad1.18x1.45mm_HandSolder) matched feeder 51 by value only (feeder package: 0805-NO)
+...
+Wrote output file "output.pts"
 ```
 
 

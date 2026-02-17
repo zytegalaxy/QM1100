@@ -1,4 +1,4 @@
-37 0 None E-SWITCH_TL3315NF160Q_0 700 No “””no””” No 0 None No
+37 0 TACTILE_SWITCH E-SWITCH_TL3315NF160Q_0 700 No “””no””” No 0 None No
 38 90 Ferrite 0805-NO 700 No “””no””” No 0 None No
 39 90 33pF 0603-NO 700 No “””no””” No 0 None No
 40 90 100pF 0603-NO 700 No “””no””” No 0 None No
@@ -7,7 +7,7 @@
 43 90 20 0603-NO 700 No “””no””” No 0 None No
 44 90 3.9K 0603-NO 700 No “””no””” No 0 None No
 47 0 BSS138 SOT23-WIDE 700 No “””no””” No 0 None No
-48 90 LC8812B-3210 LED_SK6812 700 No “””no””” No 0 None No
+48 90 ADDR-RGB-LED-SIDE LED_SK6812 700 No “””no””” No 0 None No
 49 270 1N4148 SOD-323 700 No “””no””” No 0 None No
-50 180 LC8812B-3210 SK6805-EC15 700 No “””no””” No 0 None No
+50 180 ADDR-RGB-LED-TOP SK6805-EC20 700 No “””no””” No 0 None No
 51 90 10uF 0805-NO 700 No “””no””” No 0 None No
